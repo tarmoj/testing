@@ -28,6 +28,9 @@ var WIDTH=500;
 var HEIGHT=50;
 var rafID = null;
 
+var mediaStreamSource = null;
+var mediaStreamSource2 = null;
+
 function onLoadForAudio() {
 
     // grab our canvas
@@ -75,18 +78,20 @@ function didntGetStream() {
     alert('Stream generation failed.');
 }
 
-var mediaStreamSource = null;
+
 
 function gotStream(stream) {
     // Create an AudioNode from the stream.
 	mediaStreamSource = audioContext.createMediaStreamSource(stream);
+	 mediaStreamSource2 = audioContext.createMediaElementSource(audio_player); // kui tahta 2 sisendit
 	connectAudio();
 }
 function connectAudio(){
 	// Create a new volume meter and connect it.
     meter = createAudioMeter(audioContext);
     mediaStreamSource.connect(meter);
-	mediaStreamSource.connect(audioContext.destination);
+	mediaStreamSource2.connect(meter);
+	mediaStreamSource2.connect(audioContext.destination);
 
     // kick off the visual updating
     drawLoop();
@@ -103,6 +108,7 @@ var lastLimit = [0,0,0,0];
 
 function drawLoop( time ) {
 	//document.getElementById("averagerms").value=meter.averageRms;
+	avarageVolume = meter.averageRms;
 	for (var i=0; i<limitPassed.length; i++) {
 		var threshold = meter.averageRms * limitFactor[i]; // TODO: ? kas lisada tundlikkuse parameeter või slaider?
 		if (isLive) {
