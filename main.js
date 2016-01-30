@@ -68,7 +68,7 @@ function onLoadForAudio() {
 			alert('getUserMedia threw exception :' + e);
 		}
 	}else{
-		mediaStreamSource = audioContext.createMediaElementSource(audio_player);
+		mediaStreamSource2 = audioContext.createMediaElementSource(audio_player);
 		connectAudio();
 	}
 }
@@ -89,10 +89,13 @@ function gotStream(stream) {
 function connectAudio(){
 	// Create a new volume meter and connect it.
     meter = createAudioMeter(audioContext);
-    mediaStreamSource.connect(meter);
-	mediaStreamSource2.connect(meter);
-	mediaStreamSource2.connect(audioContext.destination);
-
+    if(mediaStreamSource){
+		mediaStreamSource.connect(meter);
+	}
+	if(mediaStreamSource2){
+		mediaStreamSource2.connect(meter);
+		mediaStreamSource2.connect(audioContext.destination);
+	}
     // kick off the visual updating
     drawLoop();
 }
@@ -118,17 +121,16 @@ function drawLoop( time ) {
 				//console.log("LIMIT",i, threshold);
 		//        console.log("Average RMS", this.averageRms, this.thresholdFactor );
 		//        console.log("suhe: rms/average", rms/this.averageRms);
-			
-				var now = window.performance.now();
-				if ((now - 500) >= lastLimit[i] ) { // TODO: sea lubatav vahemik minSeparation objekti omaduseks
-						limitPassed[i] = 1; // mingi kasutav funktsioon peaks selle ise 0-seadma
-						console.log("React on LIMIT ",i,meter.volume );
-						console.log("now, lastLimit", now, this.lastLimit[i], now-this.lastLimit[i]);
-						lastLimit[i] = now;
-				}
-			
+			var now = window.performance.now();
+			if ((now - 500) >= lastLimit[i] ) { // TODO: sea lubatav vahemik minSeparation objekti omaduseks
+				limitPassed[i] = 1; // mingi kasutav funktsioon peaks selle ise 0-seadma
+				console.log("React on LIMIT ",i,meter.volume );
+				console.log("now, lastLimit", now, this.lastLimit[i], now-this.lastLimit[i]);
+				lastLimit[i] = now;
+			}
 		}
 	}
+	 limitPassed;
 	oldVolume = meter.volume; // volume võibolla halb, the averaging tõttu käib ümber piiri üles alla?
 	document.getElementById("averagerms").value=meter.averageRms;	
     rafID = window.requestAnimationFrame( drawLoop ); // schedule next call
