@@ -43,11 +43,12 @@ function createAudioMeter(audioContext,averaging) {
 	processor.onaudioprocess = volumeAudioProcess;
 	processor.volume = 0;
 	processor.oldrms = 0;
+	processor.averaging = averaging || 0.95;
 	processor.thresholdFactor = 1.2;
 	processor.pointer=0; // pointer
 	processor.averageArray = new Float32Array(256); // TODO: parem arvutus, leia sekundi mingi väärtuse järgi.
-	processor.averageRms = 0;
-	processor.lastLimit = 0;
+	//processor.averageRms = 0;
+	//processor.lastLimit = 0;
 
 	// this will have no effect, since we don't copy the input to the output,
 	// but works around a current Chrome bug.
@@ -83,34 +84,16 @@ function volumeAudioProcess( event ) {
 	this.pointer++;
 	if (this.pointer>= this.averageArray.length-1) {
 		this.pointer=0;
+		console.log("average: ",this.averageRms, rms);
 	}
 	sum = 0;
-	for (var i=0; i<this.averageArray.length-1; i++) {
+	for (var i=0; i<this.averageArray.length-1; i++) { // leia keskmised
 		x = this.averageArray[i];
     	sum += x * x;	
 	}
 	this.averageRms = Math.sqrt(sum / this.averageArray.length);
 	
-	// proovi, kas ültab piiri;
-	if (rms>=this.threshold && this.oldrms<rms*this.thresholdFactor) {
-	//        console.log("LIMIT");
-	//        console.log("Average RMS", this.averageRms, this.thresholdFactor );
-	//        console.log("suhe: rms/average", rms/this.averageRms);
-			var now = window.performance.now();
-			if ((window.performance.now() - 500) >= this.lastLimit ) { // TODO: sea lubatav vahemik minSeparation objekti omaduseks
-					console.log("React on LIMIT");
-					console.log("now, lastLimit", now, this.lastLimit, now-this.lastLimit);
-					//react();
-					this.lastLimit = window.performance.now();
-			}
-	}
-	this.oldrms = rms;
-	
-
-    // Now smooth this out with the averaging factor applied
-    // to the previous sample - take the max here because we
-    // want "fast attack, slow release."
-    this.volume = Math.max(rms, this.volume*this.averaging);
+    this.volume = Math.max(rms, this.volume*this.averaging); 
 	
 	
 	

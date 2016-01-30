@@ -91,9 +91,32 @@ function connectAudio(){
     drawLoop();
 }
 
+// erinevad konstandid audio vaatlemiseks;
+var oldVolume = 0;
+var threshold;
+var lastLimit = 0;
+var limitPassed = 0;
+
 function drawLoop( time ) {
-    console.log(meter.averageRms);
+    
 	//document.getElementById("averagerms").value=meter.averageRms;
-	avarageVolume = meter.averageRms;
+	
+	threshold = meter.averageRms * 1.8 ; // TODO: loe slaiderist . value
+	//console.log(threshold, meter.volume);
+	if (meter.volume>=threshold && oldVolume<threshold) {
+	         console.log("LIMIT");
+			 limitPassed = 1;
+	//        console.log("Average RMS", this.averageRms, this.thresholdFactor );
+	//        console.log("suhe: rms/average", rms/this.averageRms);
+			var now = window.performance.now();
+			if ((window.performance.now() - 500) >= lastLimit ) { // TODO: sea lubatav vahemik minSeparation objekti omaduseks
+					console.log("React on LIMIT");
+					console.log("now, lastLimit", now, this.lastLimit, now-this.lastLimit);
+					//react();
+					lastLimit = window.performance.now();
+			}
+	}
+	oldVolume = meter.volume; // volume võibolla halb, the averaging tõttu käib ümber piiri üles alla?
+	document.getElementById("averagerms").value=meter.averageRms;	
     rafID = window.requestAnimationFrame( drawLoop ); // is this necessary?
 }
