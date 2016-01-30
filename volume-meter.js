@@ -38,34 +38,20 @@ clipLag: how long you would like the "clipping" indicator to show
 Access the clipping through node.checkClipping(); use node.shutdown to get rid of it.
 */
 
-function createAudioMeter(audioContext,clipLevel,averaging,clipLag) {
+function createAudioMeter(audioContext,averaging) {
 	var processor = audioContext.createScriptProcessor(512);
 	processor.onaudioprocess = volumeAudioProcess;
-	processor.clipping = false;
-	processor.lastClip = 0;
 	processor.volume = 0;
-	processor.clipLevel = clipLevel || 0.98;
-	processor.averaging = averaging || 0.95;
-	processor.clipLag = clipLag || 750;
 	processor.oldrms = 0;
-	processor.threshold = 0.2;
+	processor.thresholdFactor = 1.2;
 	processor.pointer=0; // pointer
-	processor.averageArray = new Float32Array(128); // TODO: parem arvutus, leia sekundi mingi väärtuse järgi.
+	processor.averageArray = new Float32Array(256); // TODO: parem arvutus, leia sekundi mingi väärtuse järgi.
 	processor.averageRms = 0;
 	processor.lastLimit = 0;
 
 	// this will have no effect, since we don't copy the input to the output,
 	// but works around a current Chrome bug.
 	processor.connect(audioContext.destination);
-
-	processor.checkClipping =
-		function(){
-			if (!this.clipping)
-				return false;
-			if ((this.lastClip + this.clipLag) < window.performance.now())
-				this.clipping = false;
-			return this.clipping;
-		};
 
 	processor.shutdown =
 		function(){
@@ -85,26 +71,12 @@ function volumeAudioProcess( event ) {
 	// Do a root-mean-square on the samples: sum up the squares...
     for (var i=0; i<bufLength; i++) {
     	x = buf[i];
-    	if (Math.abs(x)>=this.clipLevel) {
-    		this.clipping = true;
-    		this.lastClip = window.performance.now();
-    	}
     	sum += x * x;
     }
 
     // ... then take the square root of the sum.
     var rms =  Math.sqrt(sum / bufLength);
-	if (rms>=this.threshold && this.oldrms<this.threshold) {
-		//console.log("LIMIT");
-		var now = window.performance.now();
-		if ((window.performance.now() + 250) >= this.lastLimit ) {
-			//console.log("React on LIMIT");
-			//react();
-			this.lastLimit = window.performance.now();
-
-		}
-	}
-	this.oldrms = rms;
+	
 	
 	// leia keskmine antud ajaühiku jooksul
 	this.averageArray[this.pointer] = rms;
@@ -118,8 +90,21 @@ function volumeAudioProcess( event ) {
     	sum += x * x;	
 	}
 	this.averageRms = Math.sqrt(sum / this.averageArray.length);
-	//if (this.pointer==0)
-		//console.log("Average RMS", this.averageRms);
+	
+	// proovi, kas ültab piiri;
+	if (rms>=this.threshold && this.oldrms<rms*this.thresholdFactor) {
+	//        console.log("LIMIT");
+	//        console.log("Average RMS", this.averageRms, this.thresholdFactor );
+	//        console.log("suhe: rms/average", rms/this.averageRms);
+			var now = window.performance.now();
+			if ((window.performance.now() - 500) >= this.lastLimit ) { // TODO: sea lubatav vahemik minSeparation objekti omaduseks
+					console.log("React on LIMIT");
+					console.log("now, lastLimit", now, this.lastLimit, now-this.lastLimit);
+					//react();
+					this.lastLimit = window.performance.now();
+			}
+	}
+	this.oldrms = rms;
 	
 
     // Now smooth this out with the averaging factor applied
