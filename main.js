@@ -38,7 +38,7 @@ function onLoadForAudio() {
 	
     // grab an audio context
     audioContext = new AudioContext();
-	if(1){  // audio failiks, 1- mikrofon
+	if(isLive != 0){  // audio failiks, 1- mikrofon
 		// Attempt to get audio input
 		try {
 			// monkeypatch getUserMedia
@@ -92,7 +92,7 @@ function connectAudio(){
 }
 
 function drawLoop( time ) {
-    console.log(meter.averageRms);
+    //console.log(meter.averageRms);
 	//document.getElementById("averagerms").value=meter.averageRms;
 	avarageVolume = meter.averageRms;
     rafID = window.requestAnimationFrame( drawLoop ); // is this necessary?
