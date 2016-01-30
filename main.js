@@ -38,7 +38,8 @@ function onLoadForAudio() {
 	
     // grab an audio context
     audioContext = new AudioContext();
-	if (isLive){  // 0 audio failist, 1- mikrofon
+
+	if(isLive != 0){  // audio failiks, 1- mikrofon
 		// Attempt to get audio input
 		try {
 			// monkeypatch getUserMedia
@@ -101,10 +102,7 @@ var limitFactor = [1.5,2,2.5, 3]; // kordajad - võrreldes keskmise helitasemega
 var lastLimit = [0,0,0,0];
 
 function drawLoop( time ) {
-    
 	//document.getElementById("averagerms").value=meter.averageRms;
-	
-	//console.log(threshold, meter.volume);
 	for (var i=0; i<limitPassed.length; i++) {
 		var threshold = meter.averageRms * limitFactor[i]; // TODO: ? kas lisada tundlikkuse parameeter või slaider?
 		if (isLive) {

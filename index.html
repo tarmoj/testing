@@ -9,7 +9,7 @@
 	paper.install(window);
 	var leftEar, leftEarRot = 0, leftEarPivot, rightEar, rightEarRot = 0, rightEarPivot, 
 		leftHand, leftHandRot = 0, leftHandPivot, rightHand, rightHandRot = 0, rightHandPivot, 
-		leftPupil, rightPupil, wholeBody, avarageVolume = 0, isLive = 0;
+		leftPupil, rightPupil, wholeBody, avarageVolume = 0, isLive = 1;
 	function onLoadForSVG() {
 		//var canvas = document.getElementById('canvas');
 		// Create an empty project and a view for the canvas:
@@ -30,7 +30,7 @@
 						view.onFrame = function(event) {
 							//Every frame, rotate the path by 3 degrees:
 							//leftEar.rotate(avarageVolume, leftEarPivot);
-							react();
+							react(event);
 							view.draw();
 						}
 					});
@@ -53,7 +53,8 @@
 	var step = 3;
 	var enlarged = 0;
 	var lastAngle = 0;
-	function react(){
+	var timer = 0;
+	function react(event){
 			//leftEar.fillColor = new Color(Math.random(), Math.random(), Math.random());
 			if(isLive){
 				leftEarRot =- (avarageVolume * 70  - 41);
@@ -66,21 +67,29 @@
 			//if(leftEarRot >= -21 && leftEarRot <= 21){
 			leftEar.rotate(step, leftEarPivot);
 			rightEar.rotate(-step, rightEarPivot);
-			leftHand.rotate(step, leftHandPivot);
-			rightHand.rotate(step, rightHandPivot);
+			//leftHand.rotate(step, leftHandPivot);
+			//rightHand.rotate(step, rightHandPivot);
 			//}
 			/*else if(leftEarRot > 21){
 				step = -3;
 			}else if(leftEarRot < -21){
 				step = 3;
 			}*/
-			/*if(enlarged){
-				leftPupil.scale(-step/100);
-				rightPupil.scale(-step/100);
+			
+			// A cylic value between -1 and 1
+			//if(timer >= 2*Math.PI){
+			var sinus = Math.sin(timer);
+			timer++;
+			// Change the y position of the segment point:
+			//segment.point.y = sinus + 1.1;
+
+			if(enlarged){
+				leftPupil.scale(sinus/100 + 1.0);
+				rightPupil.scale(sinus/100 + 1.0);
 			}else{
-				leftPupil.scale(step/100);
-				rightPupil.scale(step/100);
-			}*/
+				leftPupil.scale(sinus/100 + 1.0);
+				rightPupil.scale(sinus/100 + 1.0);
+			}
 			view.draw();
 	}
 	</script>
