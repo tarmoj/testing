@@ -8,7 +8,8 @@
 	<script type="text/javascript">
 	paper.install(window);
 	var leftEar, leftEarRot = 0, leftEarPivot, rightEar, rightEarRot = 0, rightEarPivot, 
-		leftHand, leftHandRot = 0, leftHandPivot, rightHand, rightHandRot = 0, rightHandPivot, leftPupil, rightPupil, wholeBody;
+		leftHand, leftHandRot = 0, leftHandPivot, rightHand, rightHandRot = 0, rightHandPivot, 
+		leftPupil, rightPupil, wholeBody, avarageVolume = 0, isLive = 0;
 	function onLoadForSVG() {
 		//var canvas = document.getElementById('canvas');
 		// Create an empty project and a view for the canvas:
@@ -26,6 +27,12 @@
 						wholeBody = item;
 						setupSVG();
 						view.draw();
+						view.onFrame = function(event) {
+							//Every frame, rotate the path by 3 degrees:
+							//leftEar.rotate(avarageVolume, leftEarPivot);
+							react();
+							view.draw();
+						}
 					});
 				}
 			}
@@ -45,29 +52,35 @@
 	}
 	var step = 3;
 	var enlarged = 0;
+	var lastAngle = 0;
 	function react(){
 			//leftEar.fillColor = new Color(Math.random(), Math.random(), Math.random());
-			
-			leftEarRot+=step;
-			
-			if(leftEarRot >= -20 && leftEarRot <= 20){
-				leftEar.rotate(step, leftEarPivot);
-				rightEar.rotate(-step, rightEarPivot);
-				leftHand.rotate(step, leftHandPivot);
-				rightHand.rotate(step, rightHandPivot);
+			if(isLive){
+				leftEarRot =- (avarageVolume * 70  - 41);
+			}else{
+				leftEarRot =- (avarageVolume * 800  - 41);
 			}
-			else if(leftEarRot > 20){
+			step = leftEarRot - lastAngle;
+			lastAngle = leftEarRot;
+			
+			//if(leftEarRot >= -21 && leftEarRot <= 21){
+			leftEar.rotate(step, leftEarPivot);
+			rightEar.rotate(-step, rightEarPivot);
+			leftHand.rotate(step, leftHandPivot);
+			rightHand.rotate(step, rightHandPivot);
+			//}
+			/*else if(leftEarRot > 21){
 				step = -3;
-			}else if(leftEarRot < -20){
+			}else if(leftEarRot < -21){
 				step = 3;
-			}
-			if(enlarged){
+			}*/
+			/*if(enlarged){
 				leftPupil.scale(-step/100);
 				rightPupil.scale(-step/100);
 			}else{
 				leftPupil.scale(step/100);
 				rightPupil.scale(step/100);
-			}
+			}*/
 			view.draw();
 	}
 	</script>

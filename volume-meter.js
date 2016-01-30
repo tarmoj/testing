@@ -98,7 +98,7 @@ function volumeAudioProcess( event ) {
 		//console.log("LIMIT");
 		var now = window.performance.now();
 		if ((window.performance.now() + 250) >= this.lastLimit ) {
-			console.log("React on LIMIT");
+			//console.log("React on LIMIT");
 			//react();
 			this.lastLimit = window.performance.now();
 
@@ -109,9 +109,7 @@ function volumeAudioProcess( event ) {
 	// leia keskmine antud ajaühiku jooksul
 	this.averageArray[this.pointer] = rms;
 	this.pointer++;
-	//console.log(this.pointer);
 	if (this.pointer>= this.averageArray.length-1) {
-		console.log(this.pointer);
 		this.pointer=0;
 	}
 	sum = 0;
@@ -120,8 +118,8 @@ function volumeAudioProcess( event ) {
     	sum += x * x;	
 	}
 	this.averageRms = Math.sqrt(sum / this.averageArray.length);
-	if (this.pointer==0)
-		console.log("Average RMS", this.averageRms);
+	//if (this.pointer==0)
+		//console.log("Average RMS", this.averageRms);
 	
 
     // Now smooth this out with the averaging factor applied
