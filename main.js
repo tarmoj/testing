@@ -92,21 +92,7 @@ function connectAudio(){
 }
 
 function drawLoop( time ) {
-    // clear the background
-    //canvasContext.clearRect(0,0,WIDTH,HEIGHT);
-
-    // check if we're currently clipping
-    if (meter.checkClipping())
-        //console.log("CLLIPPING");
-		//canvasContext.fillStyle = "red";
-    //else
-        //canvasContext.fillStyle = "green";
-
-    // draw a bar based on the current volume
-    //canvasContext.fillRect(0, 0, meter.volume*WIDTH*1.4, HEIGHT);
-
-    // set up the next visual callback
-	
-		
+    //console.log(meter.averagerms);
+	document.getElementById("averagerms").value=meter.averageRms;
     rafID = window.requestAnimationFrame( drawLoop ); // is this necessary?
 }
