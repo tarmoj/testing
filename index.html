@@ -1,9 +1,100 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <title></title>
-    <meta content="">
-    <style></style>
-  </head>
-  <body>
-  BUNNY<br></body>
+<head>
+    <meta charset="UTF-8">
+    <title>Import From File</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="paper-full.js"></script>
+	<script type="text/javascript">
+	paper.install(window);
+	var leftEar, leftEarRot = 0, leftEarPivot, rightEar, rightEarRot = 0, rightEarPivot, 
+		leftHand, leftHandRot = 0, leftHandPivot, rightHand, rightHandRot = 0, rightHandPivot, leftPupil, rightPupil, wholeBody;
+	function onLoadForSVG() {
+		//var canvas = document.getElementById('canvas');
+		// Create an empty project and a view for the canvas:
+		paper.setup('canvas');
+		
+		var file = document.getElementById('file');
+		file.addEventListener('change', function (event) {
+		
+			var files = event.target.files;
+			for (var i = 0; i < files.length; i++) {
+				var file = files[i];
+				if (file.type.match('svg')) {
+					project.clear();
+					project.importSVG(file, function(item) {
+						wholeBody = item;
+						setupSVG();
+						view.draw();
+					});
+				}
+			}
+		});
+	}
+	function setupSVG(){
+		leftEar = project.getItem( { name: "left-ear" });
+		leftEarPivot = project.getItem( { name: "pivot-left-ear" }).position;
+		rightEar = project.getItem( { name: "right-ear" });
+		rightEarPivot = project.getItem( { name: "pivot-right-ear" }).position;
+		leftHand = project.getItem( { name: "left-hand" });
+		leftHandPivot = project.getItem( { name: "pivot-left-hand" }).position;
+		rightHand = project.getItem( { name: "right-hand" });
+		rightHandPivot = project.getItem( { name: "pivot-right-hand" }).position;
+		leftPupil = project.getItem( { name: "left-pupil" });
+		rightPupil = project.getItem( { name: "right-pupil" });
+	}
+	var step = 3;
+	var enlarged = 0;
+	function react(){
+			//leftEar.fillColor = new Color(Math.random(), Math.random(), Math.random());
+			
+			leftEarRot+=step;
+			
+			if(leftEarRot >= -20 && leftEarRot <= 20){
+				leftEar.rotate(step, leftEarPivot);
+				rightEar.rotate(-step, rightEarPivot);
+				leftHand.rotate(step, leftHandPivot);
+				rightHand.rotate(step, rightHandPivot);
+			}
+			else if(leftEarRot > 20){
+				step = -3;
+			}else if(leftEarRot < -20){
+				step = 3;
+			}
+			if(enlarged){
+				leftPupil.scale(-step/100);
+				rightPupil.scale(-step/100);
+			}else{
+				leftPupil.scale(step/100);
+				rightPupil.scale(step/100);
+			}
+			view.draw();
+	}
+	</script>
+	<script src="volume-meter.js"></script>
+	<!-- Include the main app logic -->
+	<script src="main.js"></script>
+	<script type="text/javascript">
+	window.onload = function() {
+		onLoadForSVG();
+		audio_file.onchange = function(){
+			var audioFiles = this.files;
+			var audioFile = URL.createObjectURL(audioFiles[0]); 
+			audio_player.src = audioFile; 
+			audio_player.play();
+		};
+		onLoadForAudio();
+	}
+	</script>
+</head>
+<body>
+	<audio id="audio_player" controls ></audio>
+    <form>
+	<label>SVG</label>
+    <input type="file" id="file" />
+	<label>Audio</label>
+	<input id="audio_file" type="file" accept="audio/*" />
+    </form>
+    <canvas id="canvas" width="1000" height="1000"></canvas>
+</body>
 </html>
