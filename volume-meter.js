@@ -84,7 +84,7 @@ function volumeAudioProcess( event ) {
 	this.pointer++;
 	if (this.pointer>= this.averageArray.length-1) {
 		this.pointer=0;
-		console.log("average: ",this.averageRms, rms);
+		//console.log("average: ",this.averageRms, rms);
 	}
 	sum = 0;
 	for (var i=0; i<this.averageArray.length-1; i++) { // leia keskmised
