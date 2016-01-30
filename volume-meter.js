@@ -49,6 +49,10 @@ function createAudioMeter(audioContext,clipLevel,averaging,clipLag) {
 	processor.clipLag = clipLag || 750;
 	processor.oldrms = 0;
 	processor.threshold = 0.2;
+	processor.pointer=0; // pointer
+	processor.averageArray = new Float32Array(512*30); // TODO: parem arvutus, leia sekundi mingi väärtuse järgi.
+	processor.averageRms = 0;
+	processor.lastLimit = 0;
 
 	// this will have no effect, since we don't copy the input to the output,
 	// but works around a current Chrome bug.
@@ -92,9 +96,29 @@ function volumeAudioProcess( event ) {
     var rms =  Math.sqrt(sum / bufLength);
 	if (rms>=this.threshold && this.oldrms<this.threshold) {
 		//console.log("LIMIT");
-		react();
+		var now = window.performance.now();
+		if ((window.performance.now() + 250) >= this.lastLimit ) {
+			console.log("React on LIMIT");
+			react();
+			this.lastLimit = window.performance.now();
+
+		}
 	}
 	this.oldrms = rms;
+	
+	// leia keskmine antud ajaühiku jooksul
+	this.averageArray[this.pointer] = rms;
+	this.pointer++;
+	if (this.pointer>= this.averageArray.length-1)
+		this.pointer=0;
+	sum = 0;
+	for (var i=0; i<this.averageArray.length-1; i++) {
+		x = this.averageArray[i];
+    	sum += x * x;	
+	}
+	this.averageRms = Math.sqrt(sum / this.averageArray.length);
+	if (this.counter==0)
+		console.log("Average RMS", this.averageRms);
 	
 
     // Now smooth this out with the averaging factor applied
