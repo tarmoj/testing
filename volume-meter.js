@@ -50,7 +50,7 @@ function createAudioMeter(audioContext,clipLevel,averaging,clipLag) {
 	processor.oldrms = 0;
 	processor.threshold = 0.2;
 	processor.pointer=0; // pointer
-	processor.averageArray = new Float32Array(512*30); // TODO: parem arvutus, leia sekundi mingi väärtuse järgi.
+	processor.averageArray = new Float32Array(128); // TODO: parem arvutus, leia sekundi mingi väärtuse järgi.
 	processor.averageRms = 0;
 	processor.lastLimit = 0;
 
@@ -99,7 +99,7 @@ function volumeAudioProcess( event ) {
 		var now = window.performance.now();
 		if ((window.performance.now() + 250) >= this.lastLimit ) {
 			console.log("React on LIMIT");
-			react();
+			//react();
 			this.lastLimit = window.performance.now();
 
 		}
@@ -109,15 +109,18 @@ function volumeAudioProcess( event ) {
 	// leia keskmine antud ajaühiku jooksul
 	this.averageArray[this.pointer] = rms;
 	this.pointer++;
-	if (this.pointer>= this.averageArray.length-1)
+	//console.log(this.pointer);
+	if (this.pointer>= this.averageArray.length-1) {
+		console.log(this.pointer);
 		this.pointer=0;
+	}
 	sum = 0;
 	for (var i=0; i<this.averageArray.length-1; i++) {
 		x = this.averageArray[i];
     	sum += x * x;	
 	}
 	this.averageRms = Math.sqrt(sum / this.averageArray.length);
-	if (this.counter==0)
+	if (this.pointer==0)
 		console.log("Average RMS", this.averageRms);
 	
 

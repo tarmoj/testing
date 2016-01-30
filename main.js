@@ -38,7 +38,7 @@ function onLoadForAudio() {
 	
     // grab an audio context
     audioContext = new AudioContext();
-	if(1){  // 1 audio failiks
+	if(0){  // audio failiks, 1- mikrofon
 		// Attempt to get audio input
 		try {
 			// monkeypatch getUserMedia
