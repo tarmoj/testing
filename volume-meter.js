@@ -52,7 +52,7 @@ function createAudioMeter(audioContext,averaging) {
 
 	// this will have no effect, since we don't copy the input to the output,
 	// but works around a current Chrome bug.
-	processor.connect(audioContext.destination);
+	processor.connect(audioContext.destination); 
 
 	processor.shutdown =
 		function(){

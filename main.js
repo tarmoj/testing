@@ -31,6 +31,8 @@ var rafID = null;
 var mediaStreamSource = null;
 var mediaStreamSource2 = null;
 
+var analyser;  // from anaylse.js
+
 function onLoadForAudio() {
 
     // grab our canvas
@@ -89,13 +91,19 @@ function gotStream(stream) {
 function connectAudio(){
 	// Create a new volume meter and connect it.
     meter = createAudioMeter(audioContext);
-    if(mediaStreamSource){
+    // analyser
+	initAnalyser(audioContext);
+	if(mediaStreamSource){ // mikrofon
 		mediaStreamSource.connect(meter);
+		mediaStreamSource.connect(analyser);
 	}
-	if(mediaStreamSource2){
+	if(mediaStreamSource2){ // helifail
+		mediaStreamSource2.connect(meter);
 		mediaStreamSource2.connect(meter);
 		mediaStreamSource2.connect(audioContext.destination);
 	}
+	
+	
     // kick off the visual updating
     drawLoop();
 }
@@ -111,6 +119,9 @@ var lastLimit = [0,0,0,0];
 
 function drawLoop( time ) {
 	//document.getElementById("averagerms").value=meter.averageRms;
+	analyseFreqencies();
+	document.getElementById("averagefreq").value=averagePeakFreq;
+	
 	avarageVolume = meter.averageRms;
 	for (var i=0; i<limitPassed.length; i++) {
 		var threshold = meter.averageRms * limitFactor[i]; // TODO: ? kas lisada tundlikkuse parameeter või slaider?

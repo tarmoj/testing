@@ -10,7 +10,7 @@
 	var leftEar, leftEarRot = 0, leftEarPivot, rightEar, rightEarRot = 0, rightEarPivot, 
 		leftHand, leftHandRot = 0, leftHandPivot, rightHand, rightHandRot = 0, rightHandPivot, 
 		leftLeg, leftLegRot = 0, leftLegPivot, rightLeg, rightLegRot = 0, rightLegPivot,
-		leftPupil, rightPupil, mouthOpen, wholeBody, avarageVolume = 0, isLive = 0, passer = [0,0,0,0];
+		leftPupil, rightPupil, mouthOpen, wholeBody, avarageVolume = 0, isLive = 1, passer = [0,0,0,0];
 	function onLoadForSVG() {
 		//var canvas = document.getElementById('canvas');
 		// Create an empty project and a view for the canvas:
@@ -173,6 +173,8 @@
 	}
 	</script>
 	<script src="volume-meter.js"></script>
+	<script src="analyser.js"></script>
+
 	<!-- Include the main app logic -->
 	<script src="main.js"></script>
 	<script type="text/javascript">
@@ -189,10 +191,13 @@
 	</script>
 </head>
 <body>
-	<audio id="audio_player" controls src="test7.mp3"></audio>
+	<audio id="audio_player" controls src="test2.mp3"></audio>
 	<br>
 	<input type="range" id="averagerms" min="0" max="0.5" step="0.01" >Keskmine helitugevus</input><br>
     <br>
+    <br>
+		<input type="range" id="averagefreq" min="20" max="2000" step="1" >Keskmine saegdus</input>	
+		 <br>
     <form>
 	<label>SVG</label>
     <input type="file" id="file" value="j2nes1.svg"/>
