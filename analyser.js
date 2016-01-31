@@ -26,6 +26,7 @@ var peakFreq=-1;
 var freqBuffer = new Float32Array(32); // et analüüsida siit keskmine tippsagedus
 
 var averagePeakFreq = 0;
+var centroid = 0;
 
 // init peaks olema tehtud main.js-s
 
@@ -33,8 +34,8 @@ function initAnalyser(audioContext) {
   analyser = audioContext.createAnalyser();
   //this.analyser.connect(audioContext.destination);
   // ühenda sisend parentis 
-  analyser.minDecibels = -140;
-  analyser.maxDecibels = 0;
+  analyser.minDecibels = -90;
+  analyser.maxDecibels = -3;
   freqs = new Uint8Array(analyser.frequencyBinCount); // parem Float32
   
 }
@@ -55,14 +56,19 @@ function analyseFreqencies() {
 
 	var maxBin = -1, maxValue=-1;
 	// käi läbi sageduskastid:
+	var binCentroid;
+	var ampSum=0, weightSum=0;
 	for (var i = 0; i < analyser.frequencyBinCount; i++) { // lisa siia ka tsentroidiarvutus
 		var value = freqs[i];
 		if (value>maxValue) {
 			maxBin = i;
 			maxValue = value;
 		}
+		ampSum += value; weightSum +=  value*getBinFrequency(i);
 	}
-	peakFreq=(maxBin* (audioContext.sampleRate/2)/analyser.frequencyBinCount ); // nyqvist / bincount * bin number 
+	centroid = weightSum / ampSum;
+	//console.log("Centroid", centroid);
+	peakFreq=getBinFrequency(maxBin); // (maxBin* (audioContext.sampleRate/2)/analyser.frequencyBinCount ); 
 	if (peakFreq>50 && peakFreq<2000) {
 		freqBuffer[freqPointer]=peakFreq; // lisa ainult selle ala sagedused
 	}
@@ -74,10 +80,14 @@ function analyseFreqencies() {
 	freqPointer++;
 	if (freqPointer==freqBuffer.length-1) {
 		freqPointer=0;
-		console.log("average peakfreq", averagePeakFreq );
+		//console.log("average peakfreq", averagePeakFreq );
 	}
 	
 	//console.log("max tugevus kastis (kast, väärtus, sagedus): ",maxBin, maxValue );
   
+}
+
+function getBinFrequency(binNumber) {
+	return binNumber * (audioContext.sampleRate/2)/analyser.frequencyBinCount; // nyqvist / bincount * bin number 
 }
 
