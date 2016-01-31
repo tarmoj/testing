@@ -59,7 +59,6 @@ function createAudioMeter(audioContext,averaging) {
 			this.disconnect();
 			this.onaudioprocess = null;
 		};
-
 	return processor;
 }
 
@@ -77,7 +76,6 @@ function volumeAudioProcess( event ) {
 
     // ... then take the square root of the sum.
     var rms =  Math.sqrt(sum / bufLength);
-	
 	
 	// leia keskmine antud ajaühiku jooksul
 	this.averageArray[this.pointer] = rms;

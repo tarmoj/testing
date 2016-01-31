@@ -9,7 +9,8 @@
 	paper.install(window);
 	var leftEar, leftEarRot = 0, leftEarPivot, rightEar, rightEarRot = 0, rightEarPivot, 
 		leftHand, leftHandRot = 0, leftHandPivot, rightHand, rightHandRot = 0, rightHandPivot, 
-		leftPupil, rightPupil, wholeBody, avarageVolume = 0, isLive = 0;
+		leftLeg, leftLegRot = 0, leftLegPivot, rightLeg, rightLegRot = 0, rightLegPivot,
+		leftPupil, rightPupil, mouthOpen, wholeBody, avarageVolume = 0, isLive = 0, passer = [0,0,0,0];
 	function onLoadForSVG() {
 		//var canvas = document.getElementById('canvas');
 		// Create an empty project and a view for the canvas:
@@ -40,57 +41,135 @@
 	}
 	function setupSVG(){
 		leftEar = project.getItem( { name: "left-ear" });
-		leftEarPivot = project.getItem( { name: "pivot-left-ear" }).position;
+		if(project.getItem( { name: "pivot-left-ear" }))
+			leftEarPivot = project.getItem( { name: "pivot-left-ear" }).position;
 		rightEar = project.getItem( { name: "right-ear" });
-		rightEarPivot = project.getItem( { name: "pivot-right-ear" }).position;
+		if(project.getItem( { name: "pivot-right-ear" }))
+			rightEarPivot = project.getItem( { name: "pivot-right-ear" }).position;
 		leftHand = project.getItem( { name: "left-hand" });
-		leftHandPivot = project.getItem( { name: "pivot-left-hand" }).position;
+		if(project.getItem( { name: "pivot-left-hand" }))
+			leftHandPivot = project.getItem( { name: "pivot-left-hand" }).position;
 		rightHand = project.getItem( { name: "right-hand" });
-		rightHandPivot = project.getItem( { name: "pivot-right-hand" }).position;
+		if(project.getItem( { name: "pivot-right-hand" }))
+			rightHandPivot = project.getItem( { name: "pivot-right-hand" }).position;
+		leftLeg = project.getItem( { name: "left-leg" });
+		if(project.getItem( { name: "pivot-left-leg" }))
+			leftLegPivot = project.getItem( { name: "pivot-left-leg" }).position;
+		rightLeg = project.getItem( { name: "right-leg" });
+		if(project.getItem( { name: "pivot-right-leg" }))
+			rightLegPivot = project.getItem( { name: "pivot-right-leg" }).position;
 		leftPupil = project.getItem( { name: "left-pupil" });
 		rightPupil = project.getItem( { name: "right-pupil" });
+		mouthOpen = project.getItem( { name: "mouth-open" });
 	}
+	// t: current time, b: begInnIng value, c: change In value, d: duration
+	function easeOutBack(t, b, c, d, s){
+		if (s == undefined) 
+			s = 1.70158; 
+		return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b; 
+	}
+	function easeInOutQuart(t, b, c, d) { 
+ 		if ((t/=d/2) < 1) return c/2*t*t*t*t + b; 
+ 		return -c/2 * ((t-=2)*t*t*t - 2) + b; 
+	}
+
 	var step = 3;
 	var enlarged = 0;
 	var lastAngle = 0;
-	var timer = 0;
+	var timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0;
 	function react(event){
-			//leftEar.fillColor = new Color(Math.random(), Math.random(), Math.random());
-			if(isLive){
-				leftEarRot =- (avarageVolume * 70  - 41);
-			}else{
-				leftEarRot =- (avarageVolume * 800  - 41);
-			}
-			step = leftEarRot - lastAngle;
-			lastAngle = leftEarRot;
-			
-			//if(leftEarRot >= -21 && leftEarRot <= 21){
-			leftEar.rotate(step, leftEarPivot);
-			rightEar.rotate(-step, rightEarPivot);
-			//leftHand.rotate(step, leftHandPivot);
-			//rightHand.rotate(step, rightHandPivot);
-			//}
-			/*else if(leftEarRot > 21){
-				step = -3;
-			}else if(leftEarRot < -21){
-				step = 3;
-			}*/
-			
-			// A cylic value between -1 and 1
-			//if(timer >= 2*Math.PI){
-			var sinus = Math.sin(timer);
-			timer++;
-			// Change the y position of the segment point:
-			//segment.point.y = sinus + 1.1;
+		//leftEar.fillColor = new Color(Math.random(), Math.random(), Math.random());
+		if(isLive){
+			leftEarRot =- (avarageVolume * 70  - 41);
+		}else{
+			leftEarRot =- (avarageVolume * 250  - 41);
+		}
+		step = leftEarRot - lastAngle;
+		lastAngle = leftEarRot;
+		
+		//if(leftEarRot >= -21 && leftEarRot <= 21){
+		leftEar.rotate(step, leftEarPivot);
+		rightEar.rotate(-step, rightEarPivot);
+		//leftHand.rotate(step, leftHandPivot);
+		//rightHand.rotate(step, rightHandPivot);
+		//}
+		/*else if(leftEarRot > 21){
+			step = -3;
+		}else if(leftEarRot < -21){
+			step = 3;
+		}*/
+		
+		// A cylic value between -1 and 1
+		//if(timer >= 2*Math.PI){
 
-			if(enlarged){
-				leftPupil.scale(sinus/100 + 1.0);
-				rightPupil.scale(sinus/100 + 1.0);
-			}else{
-				leftPupil.scale(sinus/100 + 1.0);
-				rightPupil.scale(sinus/100 + 1.0);
+		// Change the y position of the segment point:
+		//segment.point.y = sinus + 1.1;
+		//wholeBody.sca
+		/*if(passer[0] == 1){
+			timer++;
+			if(timer < 120){
+				var val= easeInOutQuart(timer, 1.0, 0.2, 120);
+				leftPupil.scale(val);
+				rightPupil.scale(val);
+			}else if(timer >= 120){
+				var val= easeInOutQuart(timer, 1.0, -0.2, 120);
+				leftPupil.scale(val);
+				rightPupil.scale(val);
+			} else if(timer >= 240){
+				passer[0] = 0; timer = 0;
 			}
-			view.draw();
+		}*/
+		//Left handed hello
+		if(passer[0] == 1){
+			timer1++;
+			if(timer1 < 15){
+				var val= easeInOutQuart(timer1, 0, 5, 15);
+				leftHand.rotate(-val, leftHandPivot);
+			}else if(timer1 < 30){
+				var val= easeInOutQuart(timer1-15, 0, 5, 15);
+				leftHand.rotate(val, leftHandPivot);
+			}
+			if(timer1 >= 30){
+				passer[0] = 0; timer1 = 0;
+			}
+		}
+		//Right handed hello
+		if(passer[1] == 1){
+			timer2++;
+			if(timer2 < 15){
+				var val= easeInOutQuart(timer2, 0, 5, 15);
+				rightHand.rotate(val, rightHandPivot);
+			}else if(timer2 < 30){
+				var val= easeInOutQuart(timer2-15, 0, 5, 15);
+				rightHand.rotate(-val, rightHandPivot);
+			}
+			
+			if(timer2 >= 30){
+				passer[1] = 0; timer2 = 0;
+			}
+		}
+		//Pop mouth
+		if(passer[3] == 1){
+			mouthOpen.bringToFront();
+			timer3++;
+			if(timer3 >= 30){
+				mouthOpen.sendToBack();
+				passer[3] = 0; 
+				timer3 = 0;
+			}
+		}
+		/*//Red Eyes
+		if(passer[4] == 1){
+			leftPupil.fillColor
+			rightPupil
+			timer4++;
+			if(timer4 >= 30){
+				mouthOpen.sendToBack();
+				passer[3] = 0; 
+				timer4 = 0;
+			}
+		}*/
+		view.draw();
 	}
 	</script>
 	<script src="volume-meter.js"></script>

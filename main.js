@@ -83,7 +83,7 @@ function didntGetStream() {
 function gotStream(stream) {
     // Create an AudioNode from the stream.
 	mediaStreamSource = audioContext.createMediaStreamSource(stream);
-	 mediaStreamSource2 = audioContext.createMediaElementSource(audio_player); // kui tahta 2 sisendit
+	mediaStreamSource2 = audioContext.createMediaElementSource(audio_player); // kui tahta 2 sisendit
 	connectAudio();
 }
 function connectAudio(){
@@ -119,18 +119,18 @@ function drawLoop( time ) {
 		}
 		if (meter.volume>=threshold && oldVolume<threshold) {
 				//console.log("LIMIT",i, threshold);
-		//        console.log("Average RMS", this.averageRms, this.thresholdFactor );
-		//        console.log("suhe: rms/average", rms/this.averageRms);
+				//console.log("Average RMS", this.averageRms, this.thresholdFactor );
+				//console.log("suhe: rms/average", rms/this.averageRms);
 			var now = window.performance.now();
 			if ((now - 500) >= lastLimit[i] ) { // TODO: sea lubatav vahemik minSeparation objekti omaduseks
-				limitPassed[i] = 1; // mingi kasutav funktsioon peaks selle ise 0-seadma
-				console.log("React on LIMIT ",i,meter.volume );
-				console.log("now, lastLimit", now, this.lastLimit[i], now-this.lastLimit[i]);
+				passer[i]=limitPassed[i] = 1; // mingi kasutav funktsioon peaks selle ise 0-seadma
+				//console.log("React on LIMIT ",i,meter.volume );
+				//console.log("now, lastLimit", now, this.lastLimit[i], now-this.lastLimit[i]);
 				lastLimit[i] = now;
 			}
 		}
 	}
-	 limitPassed;
+	passer = limitPassed;
 	oldVolume = meter.volume; // volume võibolla halb, the averaging tõttu käib ümber piiri üles alla?
 	document.getElementById("averagerms").value=meter.averageRms;	
     rafID = window.requestAnimationFrame( drawLoop ); // schedule next call

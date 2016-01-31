@@ -76,6 +76,17 @@
      style="fill:#ff0000;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" /><g
      transform="matrix(1.25,0,0,-1.25,0,1087.795)"
      id="g10"><g
+       id="mouth-open"
+       transform="translate(330.7456,374.5156)"><path
+         id="g1245"
+         transform="matrix(0.8,0,0,-0.8,-330.7456,495.7204)"
+         d="M 366.10156 619.65039 C 366.23406 628.53414 375.52273 633.61672 389.30273 633.60547 C 403.82273 633.59547 413.30039 628.53414 413.43164 619.65039 L 366.10156 619.65039 z "
+         style="fill:#e4e10c;stroke:#6c007f;stroke-width:3.75;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1" /></g><g
+       id="g4263"
+       clip-path="url(#clipPath270)"><g
+         id="g4265"
+         transform="translate(330.7456,374.5156)"
+         style="fill:#fff6d5" /></g><g
        id="g12"><g
          clip-path="url(#clipPath16)"
          id="g14"><g
