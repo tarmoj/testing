@@ -116,11 +116,28 @@ var oldVolume = 0;
 var limitPassed = [0,0,0,0] ; // 4 taset, 1, kui ületatud
 var limitFactor = [1.5,2,2.5, 3]; // kordajad - võrreldes keskmise helitasemega (meter.averageRms)
 var lastLimit = [0,0,0,0];
+var oldCentroid;
+var centroidThreshold = 3000;
+var isVowel = 0; 
+var centroidThresholdPassed=0
 
 function drawLoop( time ) {
 	//document.getElementById("averagerms").value=meter.averageRms;
 	analyseFreqencies();
 	document.getElementById("averagefreq").value=averagePeakFreq;
+	
+	if (centroid>=centroidThreshold && oldCentroid<centroidThreshold) { // kui ületab piiri, so mõrasündmus
+		console.log("CENTROID LIMIT");
+		centroidThresholdPassed=0
+	}
+	oldCentroid = centroid;
+	
+	if (centroid<centroidThreshold && centroid>1300 && meter.averageRms>0.05) {
+		//console.log("VOWEL");
+		isVowel=1;
+	} else {	
+		isVowel = 0;
+	}
 	
 	avarageVolume = meter.averageRms;
 	for (var i=0; i<limitPassed.length; i++) {
