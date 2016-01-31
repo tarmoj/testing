@@ -134,9 +134,9 @@ function drawLoop( time ) {
 	
 	if (centroid<centroidThreshold && centroid>1300 && meter.averageRms>0.05) {
 		//console.log("VOWEL");
-		isVowel=1;
+		isSpeaking=isVowel=1;
 	} else {	
-		isVowel = 0;
+		isSpeaking=isVowel = 0;
 	}
 	
 	avarageVolume = meter.averageRms;
