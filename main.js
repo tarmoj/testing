@@ -81,6 +81,8 @@ function didntGetStream() {
 }
 
 
+// kui vaja mikker lahti/külge ühendada mediaStreamSource.disconnect() vt https://developer.mozilla.org/en-US/docs/Web/API/AudioNode/disconnect
+
 
 function gotStream(stream) {
     // Create an AudioNode from the stream.
@@ -115,7 +117,7 @@ var oldVolume = 0;
 //var lastLimit = 0;
 //var limitPassed = 0;
 var limitPassed = [0,0,0,0] ; // 4 taset, 1, kui ületatud
-var limitFactor = [1.25,1.5,2, 2.5]; // kordajad - võrreldes keskmise helitasemega (meter.averageRms)
+var limitFactor = [1.15,1.25,1.66, 2]; // kordajad - võrreldes keskmise helitasemega (meter.averageRms)
 var lastLimit = [0,0,0,0];
 var oldCentroid;
 var centroidThreshold = 3000;
@@ -126,6 +128,10 @@ function drawLoop( time ) {
 	//document.getElementById("averagerms").value=meter.averageRms;
 	analyseFreqencies();
 	document.getElementById("averagefreq").value=averagePeakFreq;
+	var sensitivity = (1-parseFloat(document.getElementById("sensitivity").value))+1;  // sisuliselt kordaja, millega korrutatakse limitFactor veel läbi
+	if (isLive) {
+			sensitivity *= 1.5; // vähenda, kui on fail
+	}
 	
 	if (centroid>=centroidThreshold && oldCentroid<centroidThreshold) { // kui ületab piiri, so mõrasündmus
 		console.log("CENTROID LIMIT");
@@ -142,10 +148,7 @@ function drawLoop( time ) {
 	
 	avarageVolume = meter.averageRms;
 	for (var i=0; i<limitPassed.length; i++) {
-		var threshold = meter.averageRms * limitFactor[i]; // TODO: ? kas lisada tundlikkuse parameeter või slaider?
-		if (isLive) {
-			threshold = Math.sqrt(threshold); // vähenda, kui on fail
-		}
+		var threshold = meter.averageRms * limitFactor[i]*sensitivity; // parem oleks kordajana logarimtiline, võibolla lihtsalt ruutjuur vms averageRms-st
 		if (meter.volume>=threshold && oldVolume<threshold) {
 				//console.log("LIMIT",i, threshold);
 				//console.log("Average RMS", this.averageRms, this.thresholdFactor );
