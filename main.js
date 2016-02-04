@@ -96,6 +96,7 @@ function connectAudio(){
 	if(mediaStreamSource){ // mikrofon
 		mediaStreamSource.connect(meter);
 		mediaStreamSource.connect(analyser);
+		//mediaStreamSource.connect(audioContext.destination);
 	}
 	if(mediaStreamSource2){ // helifail
 		mediaStreamSource2.connect(meter);
@@ -114,7 +115,7 @@ var oldVolume = 0;
 //var lastLimit = 0;
 //var limitPassed = 0;
 var limitPassed = [0,0,0,0] ; // 4 taset, 1, kui ületatud
-var limitFactor = [1.5,2,2.5, 3]; // kordajad - võrreldes keskmise helitasemega (meter.averageRms)
+var limitFactor = [1.25,1.5,2, 2.5]; // kordajad - võrreldes keskmise helitasemega (meter.averageRms)
 var lastLimit = [0,0,0,0];
 var oldCentroid;
 var centroidThreshold = 3000;
