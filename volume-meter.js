@@ -92,7 +92,7 @@ function volumeAudioProcess( event ) {
 	this.averageRms = Math.sqrt(sum / this.averageArray.length);
 	
     this.volume = Math.max(rms, this.volume*this.averaging); 
-	
+
 	
 	
 }

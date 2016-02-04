@@ -10,7 +10,7 @@
 	var leftEar, leftEarRot = 0, leftEarPivot, rightEar, rightEarRot = 0, rightEarPivot, 
 		leftHand, leftHandRot = 0, leftHandPivot, rightHand, rightHandRot = 0, rightHandPivot, 
 		leftLeg, leftLegRot = 0, leftLegPivot, rightLeg, rightLegRot = 0, rightLegPivot,
-		leftPupil, rightPupil, mouthOpen, wholeBody, avarageVolume = 0, isLive = 1, passer = [0,0,0,0];
+		leftPupil, rightPupil, mouthOpen, wholeBody, isSpeaking = 0, avarageVolume = 0, isLive = 1, passer = [0,0,0,0];
 	function onLoadForSVG() {
 		//var canvas = document.getElementById('canvas');
 		// Create an empty project and a view for the canvas:
@@ -33,6 +33,10 @@
 							//leftEar.rotate(avarageVolume, leftEarPivot);
 							react(event);
 							view.draw();
+						}
+						function onResize(event) {
+							// Whenever the window is resized, recenter the path:
+							project.position = view.center;
 						}
 					});
 				}
@@ -72,10 +76,20 @@
  		if ((t/=d/2) < 1) return c/2*t*t*t*t + b; 
  		return -c/2 * ((t-=2)*t*t*t - 2) + b; 
 	}
+	function easeOutBounce (t, b, c, d) { 
+		if ((t/=d) < (1/2.75)) { 
+ 		return c*(7.5625*t*t) + b; 
+		} else if (t < (2/2.75)) { 
+			return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b; 
+		} else if (t < (2.5/2.75)) { 
+			return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b; 
+		} else { 
+			return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b; 
+		} 
+	};
 
-	var step = 3;
-	var enlarged = 0;
-	var lastAngle = 0;
+
+	var step = 3, enlarged = 0, lastAngle = 0, notFocused = true, notAlready = true;
 	var timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0;
 	function react(event){
 		//leftEar.fillColor = new Color(Math.random(), Math.random(), Math.random());
@@ -92,41 +106,15 @@
 		rightEar.rotate(-step, rightEarPivot);
 		//leftHand.rotate(step, leftHandPivot);
 		//rightHand.rotate(step, rightHandPivot);
-		//}
-		/*else if(leftEarRot > 21){
-			step = -3;
-		}else if(leftEarRot < -21){
-			step = 3;
-		}*/
 		
-		// A cylic value between -1 and 1
-		//if(timer >= 2*Math.PI){
-
-		// Change the y position of the segment point:
-		//segment.point.y = sinus + 1.1;
-		//wholeBody.sca
-		/*if(passer[0] == 1){
-			timer++;
-			if(timer < 120){
-				var val= easeInOutQuart(timer, 1.0, 0.2, 120);
-				leftPupil.scale(val);
-				rightPupil.scale(val);
-			}else if(timer >= 120){
-				var val= easeInOutQuart(timer, 1.0, -0.2, 120);
-				leftPupil.scale(val);
-				rightPupil.scale(val);
-			} else if(timer >= 240){
-				passer[0] = 0; timer = 0;
-			}
-		}*/
 		//Left handed hello
 		if(passer[0] == 1){
 			timer1++;
 			if(timer1 < 15){
-				var val= easeInOutQuart(timer1, 0, 5, 15);
+				var val= easeOutBounce(timer1, 0, 5, 15);
 				leftHand.rotate(-val, leftHandPivot);
 			}else if(timer1 < 30){
-				var val= easeInOutQuart(timer1-15, 0, 5, 15);
+				var val= easeOutBounce(timer1-15, 0, 5, 15);
 				leftHand.rotate(val, leftHandPivot);
 			}
 			if(timer1 >= 30){
@@ -137,10 +125,10 @@
 		if(passer[1] == 1){
 			timer2++;
 			if(timer2 < 15){
-				var val= easeInOutQuart(timer2, 0, 5, 15);
+				var val= easeOutBounce(timer2, 0, 5, 15);
 				rightHand.rotate(val, rightHandPivot);
 			}else if(timer2 < 30){
-				var val= easeInOutQuart(timer2-15, 0, 5, 15);
+				var val= easeOutBounce(timer2-15, 0, 5, 15);
 				rightHand.rotate(-val, rightHandPivot);
 			}
 			
@@ -148,25 +136,46 @@
 				passer[1] = 0; timer2 = 0;
 			}
 		}
+		
+		//Pop eyes
+		if(passer[3] == 1 && notFocused){
+			notFocused = false;
+			leftPupil.scale(0.8);
+			rightPupil.scale(0.8);
+			
+			setTimeout(function(){ 
+				notFocused = true;
+				leftPupil.scale(1.2);
+				rightPupil.scale(1.2);
+				passer[3] = 0; 
+			}, 3000);
+				 
+		}		
 		//Pop mouth
-		if(passer[3] == 1){
+		if(passer[2] == 1){
 			mouthOpen.bringToFront();
 			timer3++;
 			if(timer3 >= 30){
 				mouthOpen.sendToBack();
-				passer[3] = 0; 
+				passer[2] = 0; 
 				timer3 = 0;
 			}
 		}
-		/*//Red Eyes
-		if(passer[4] == 1){
-			leftPupil.fillColor
-			rightPupil
-			timer4++;
-			if(timer4 >= 30){
+		/*//Pop mouth
+		if(isSpeaking && notAlready){
+			notAlready = false;
+			mouthOpen.bringToFront();
+			timer3++;
+			if(timer3 >= 30){
 				mouthOpen.sendToBack();
-				passer[3] = 0; 
-				timer4 = 0;
+				mouthOpen.sendToBack();
+				console.log("hello");
+				isSpeaking = 0;
+				notAlready = true;
+				timer3 = 0;
+				setTimeout(function(){ 
+					notAlready = true;
+				}, 2000);
 			}
 		}*/
 		view.draw();
@@ -191,19 +200,22 @@
 	</script>
 </head>
 <body>
-	<audio id="audio_player" controls src="test2.mp3"></audio>
-	<br>
-	<input type="range" id="averagerms" min="0" max="0.5" step="0.01" >Keskmine helitugevus</input><br>
-    <br>
-    <br>
-		<input type="range" id="averagefreq" min="20" max="2000" step="1" >Keskmine saegdus</input>	
+	<div class="center">
+		<audio id="audio_player" class="center" controls src="test2.mp3"></audio>
+		<br>
+		<input type="range" class="center" id="averagerms" min="0" max="0.5" step="0.01" >Keskmine helitugevus</input><br>
+		<br>
+		<br>
+		<input type="range" class="center" id="averagefreq" min="20" max="2000" step="1" >Keskmine saegdus</input>	
 		 <br>
-    <form>
-	<label>SVG</label>
-    <input type="file" id="file" value="j2nes1.svg"/>
-	<label>Audio</label>
-	<input id="audio_file" type="file" accept="audio/*" />
-    </form>
-    <canvas id="canvas" width="1000" height="1000"></canvas>
+		<form class="center">
+		<label>SVG</label>
+		<input type="file" id="file" value="j2nes1.svg"/>
+		<label>Audio</label>
+		<input id="audio_file" type="file" accept="audio/*" />
+		</form>
+	</div>
+		<canvas id="canvas" class="center" width="1000" height="640" resize></canvas>
+
 </body>
 </html>
