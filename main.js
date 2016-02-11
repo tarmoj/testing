@@ -43,35 +43,30 @@ function onLoadForAudio() {
 	
     // grab an audio context
     audioContext = new AudioContext();
+	
+	// Attempt to get audio input
+	try {
+		// monkeypatch getUserMedia
+		navigator.getUserMedia = 
+			navigator.getUserMedia ||
+			navigator.webkitGetUserMedia ||
+			navigator.mozGetUserMedia;
 
-	if(isLive != 0){  // audio failiks, 1- mikrofon
-		// Attempt to get audio input
-		try {
-			// monkeypatch getUserMedia
-			navigator.getUserMedia = 
-				navigator.getUserMedia ||
-				navigator.webkitGetUserMedia ||
-				navigator.mozGetUserMedia;
-
-			// ask for an audio input
-			navigator.getUserMedia(
-			{
-				"audio": {
-					"mandatory": {
-						"googEchoCancellation": "false",
-						"googAutoGainControl": "false",
-						"googNoiseSuppression": "false",
-						"googHighpassFilter": "false"
-					},
-					"optional": []
+		// ask for an audio input
+		navigator.getUserMedia(
+		{
+			"audio": {
+				"mandatory": {
+					"googEchoCancellation": "false",
+					"googAutoGainControl": "false",
+					"googNoiseSuppression": "false",
+					"googHighpassFilter": "false"
 				},
-			}, gotStream, didntGetStream);
-		} catch (e) {
-			alert('getUserMedia threw exception :' + e);
-		}
-	}else{
-		mediaStreamSource2 = audioContext.createMediaElementSource(audio_player);
-		connectAudio();
+				"optional": []
+			},
+		}, gotStream, didntGetStream);
+	} catch (e) {
+		alert('getUserMedia threw exception :' + e);
 	}
 }
 
@@ -99,18 +94,28 @@ function connectAudio(){
 		mediaStreamSource.connect(meter);
 		mediaStreamSource.connect(analyser);
 		//mediaStreamSource.connect(audioContext.destination);
+		mediaStreamSource.disconnect(); //mic is initially off
 	}
 	if(mediaStreamSource2){ // helifail
-		mediaStreamSource2.connect(meter);
 		mediaStreamSource2.connect(meter);
 		mediaStreamSource2.connect(audioContext.destination);
 	}
 	
-	
     // kick off the visual updating
     drawLoop();
 }
-
+function discon(isRec){
+	// Toggler
+	if(isRec){ // mikrofon
+		mediaStreamSource2.disconnect();
+		mediaStreamSource.connect(meter);
+		mediaStreamSource.connect(analyser);
+	} else { // helifail
+		mediaStreamSource.disconnect();
+		mediaStreamSource2.connect(meter);
+		mediaStreamSource2.connect(audioContext.destination);
+	}
+}
 
 // erinevad konstandid audio vaatlemiseks;
 var oldVolume = 0;
@@ -130,12 +135,12 @@ function drawLoop( time ) {
 	document.getElementById("averagefreq").value=averagePeakFreq;
 	var sensitivity = (1-parseFloat(document.getElementById("sensitivity").value))+1;  // sisuliselt kordaja, millega korrutatakse limitFactor veel läbi
 	if (isLive) {
-			sensitivity *= 1.5; // vähenda, kui on fail
+		sensitivity *= 1.5; // vähenda, kui on fail
 	}
 	
 	if (centroid>=centroidThreshold && oldCentroid<centroidThreshold) { // kui ületab piiri, so mõrasündmus
 		console.log("CENTROID LIMIT");
-		centroidThresholdPassed=0
+		centra=centroidThresholdPassed=1;
 	}
 	oldCentroid = centroid;
 	

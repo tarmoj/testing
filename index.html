@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Import From File</title>
+    <title>Bunny</title>
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="paper-full.js"></script>
 	<script type="text/javascript">
@@ -10,11 +10,32 @@
 	var leftEar, leftEarRot = 0, leftEarPivot, rightEar, rightEarRot = 0, rightEarPivot, 
 		leftHand, leftHandRot = 0, leftHandPivot, rightHand, rightHandRot = 0, rightHandPivot, 
 		leftLeg, leftLegRot = 0, leftLegPivot, rightLeg, rightLegRot = 0, rightLegPivot,
-		leftPupil, rightPupil, mouthOpen, wholeBody, isSpeaking = 0, avarageVolume = 0, isLive = 1, passer = [0,0,0,0];
+		leftPupil, rightPupil, mouthOpen, wholeBody, isSpeaking = 0, avarageVolume = 0, isLive = 0, passer = [0,0,0,0], centra = 0;
 	function onLoadForSVG() {
 		//var canvas = document.getElementById('canvas');
 		// Create an empty project and a view for the canvas:
 		paper.setup('canvas');
+		project.clear();
+		project.importSVG("j2nes.svg", function(item) {
+			// Fit the circlePath to the bounding rectangle of
+			// the rectangular path:
+			wholeBody = item;
+			project = view.center;
+			item.fitBounds(view.bounds);
+			setupSVG();
+			view.draw();
+			view.onFrame = function(event) {
+				react(event);
+				view.draw();
+			}
+			function onResize(event) {
+				// Whenever the window is resized, recenter the path:
+				console.log("hello");
+				//project.position = view.center;
+				item.fitBounds(view.bounds);
+			}
+			window.addEventListener('resize', onResize);
+		});
 		
 		var file = document.getElementById('file');
 		file.addEventListener('change', function (event) {
@@ -25,19 +46,24 @@
 				if (file.type.match('svg')) {
 					project.clear();
 					project.importSVG(file, function(item) {
+						// Fit the circlePath to the bounding rectangle of
+						// the rectangular path:
 						wholeBody = item;
+						project = view.center;
+						item.fitBounds(view.bounds);
 						setupSVG();
 						view.draw();
 						view.onFrame = function(event) {
-							//Every frame, rotate the path by 3 degrees:
-							//leftEar.rotate(avarageVolume, leftEarPivot);
 							react(event);
 							view.draw();
 						}
 						function onResize(event) {
 							// Whenever the window is resized, recenter the path:
-							project.position = view.center;
+							console.log("hello");
+							//project.position = view.center;
+							item.fitBounds(view.bounds);
 						}
+						window.addEventListener('resize', onResize);
 					});
 				}
 			}
@@ -88,7 +114,6 @@
 		} 
 	};
 
-
 	var step = 3, enlarged = 0, lastAngle = 0, notFocused = true, notAlready = true;
 	var timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0;
 	function react(event){
@@ -137,47 +162,61 @@
 			}
 		}
 		
-		//Pop eyes
-		if(passer[3] == 1 && notFocused){
-			notFocused = false;
-			leftPupil.scale(0.8);
-			rightPupil.scale(0.8);
-			
-			setTimeout(function(){ 
-				notFocused = true;
-				leftPupil.scale(1.2);
-				rightPupil.scale(1.2);
-				passer[3] = 0; 
-			}, 3000);
-				 
-		}		
-		//Pop mouth
-		if(passer[2] == 1){
-			mouthOpen.bringToFront();
-			timer3++;
-			if(timer3 >= 30){
+		if(isLive){
+			//Pop eyes
+			if(passer[3] == 1 && notFocused){
+				notFocused = false;
+				leftPupil.scale(0.8);
+				rightPupil.scale(0.8);
+				
+				setTimeout(function(){ 
+					notFocused = true;
+					leftPupil.scale(1.25);
+					rightPupil.scale(1.25);
+					passer[3] = 0; 
+				}, 3000);
+					 
+			}
+			//Pop eyes	centroid limit looks wierd for now.			
+			/*if(centra){
+				leftPupil.scale(0.8);
+				rightPupil.scale(0.8);
+			}else{
+				leftPupil.scale(1.25);
+				rightPupil.scale(1.25);
+			}*/
+			//Pop mouth
+			if(isSpeaking){
+				mouthOpen.bringToFront();
+			}else{
 				mouthOpen.sendToBack();
-				passer[2] = 0; 
-				timer3 = 0;
+			}
+		}else{
+			//Pop eyes
+			if(passer[3] == 1 && notFocused){
+				notFocused = false;
+				leftPupil.scale(0.8);
+				rightPupil.scale(0.8);
+				
+				setTimeout(function(){ 
+					notFocused = true;
+					leftPupil.scale(1.25);
+					rightPupil.scale(1.25);
+					passer[3] = 0; 
+				}, 3000);
+					 
+			}
+			//Pop mouth
+			if(passer[2] == 1){
+				mouthOpen.bringToFront();
+				timer3++;
+				if(timer3 >= 30){
+					mouthOpen.sendToBack();
+					passer[2] = 0; 
+					timer3 = 0;
+				}
 			}
 		}
-		/*//Pop mouth
-		if(isSpeaking && notAlready){
-			notAlready = false;
-			mouthOpen.bringToFront();
-			timer3++;
-			if(timer3 >= 30){
-				mouthOpen.sendToBack();
-				mouthOpen.sendToBack();
-				console.log("hello");
-				isSpeaking = 0;
-				notAlready = true;
-				timer3 = 0;
-				setTimeout(function(){ 
-					notAlready = true;
-				}, 2000);
-			}
-		}*/
 		view.draw();
 	}
 	</script>
@@ -197,28 +236,37 @@
 		};
 		onLoadForAudio();
 	}
+	function onClickSelectAudio(){
+		var elem = document.getElementById("toggler");
+		isLive = (!isLive);
+		if (isLive) elem.value = "Mic is on";
+		else elem.value = "Music is On";
+		discon(isLive);	
+	}
 	</script>
 </head>
 <body>
-	<div class="center">
+	<div class="fixeddiv center"><canvas id="canvas" class="center" width="640" height="640" resize></canvas></div>
+	<div class="fixeddiv center">
 		<audio id="audio_player" class="center" controls src="test2.mp3"></audio>
-		<br>
-		<input type="range" class="center" id="averagerms" min="0" max="0.5" step="0.01" >Keskmine helitugevus</input><br>
-		<br>
-		<br>
-		<input type="range" class="center" id="averagefreq" min="20" max="2000" step="1" >Keskmine saegdus</input>	
-		 <br>
-		 <br>
-		<input type="range" class="center" id="sensitivity" min="0" max="1" step="0.05" value="0.5">Tundlikkus</input>	
-		 <br>
-		<form class="center">
-		<label>SVG</label>
-		<input type="file" id="file" value="j2nes1.svg"/>
+		<br><br>
+		<label>Toggle mic or music: </label>
+		<input id="toggler" type="button" onclick="onClickSelectAudio()" value="Music is On"/>
+		<br><br>
+		<label>Avarage volume (view-only): </label>
+		<input type="range" id="averagerms" min="0" max="0.5" step="0.01" />
+		<br><br>
+		<label>Avarage frequency (view-only): </label>
+		<input type="range"id="averagefreq" min="20" max="2000" step="1" />	
+		<br><br>
+		<label>Sensitivity (modifyable): </label>
+		<input type="range"id="sensitivity" min="0" max="1" step="0.05" value="0.5"/>	
+		<br><br>
+		<!--<label>SVG</label>
+		<input type="file" id="file" value="j2nes.svg"/>
+		<br><br>-->
 		<label>Audio</label>
 		<input id="audio_file" type="file" accept="audio/*" />
-		</form>
 	</div>
-		<canvas id="canvas" class="center" width="1000" height="640" resize></canvas>
-
 </body>
 </html>
