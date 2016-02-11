@@ -43,7 +43,7 @@ function onLoadForAudio() {
 	
     // grab an audio context
     audioContext = new AudioContext();
-	
+	connectAudio();
 	// Attempt to get audio input
 	try {
 		// monkeypatch getUserMedia
@@ -82,36 +82,35 @@ function didntGetStream() {
 function gotStream(stream) {
     // Create an AudioNode from the stream.
 	mediaStreamSource = audioContext.createMediaStreamSource(stream);
-	mediaStreamSource2 = audioContext.createMediaElementSource(audio_player); // kui tahta 2 sisendit
-	connectAudio();
+	initAnalyser(audioContext);
+	mediaStreamSource.connect(meter);
+	mediaStreamSource.connect(analyser);
+	//mediaStreamSource.connect(audioContext.destination);
+	mediaStreamSource.disconnect();
+	 // kui tahta 2 sisendit
+
 }
 function connectAudio(){
 	// Create a new volume meter and connect it.
     meter = createAudioMeter(audioContext);
-    // analyser
-	initAnalyser(audioContext);
-	if(mediaStreamSource){ // mikrofon
-		mediaStreamSource.connect(meter);
-		mediaStreamSource.connect(analyser);
-		//mediaStreamSource.connect(audioContext.destination);
-		mediaStreamSource.disconnect(); //mic is initially off
-	}
-	if(mediaStreamSource2){ // helifail
-		mediaStreamSource2.connect(meter);
-		mediaStreamSource2.connect(audioContext.destination);
-	}
+    mediaStreamSource2 = audioContext.createMediaElementSource(audio_player);
+	mediaStreamSource2.connect(meter);
+	mediaStreamSource2.connect(audioContext.destination);
 	
     // kick off the visual updating
     drawLoop();
 }
 function discon(isRec){
 	// Toggler
-	if(isRec){ // mikrofon
+	if(isRec ){ // mikrofon
 		mediaStreamSource2.disconnect();
-		mediaStreamSource.connect(meter);
-		mediaStreamSource.connect(analyser);
+		if(mediaStreamSource){
+			mediaStreamSource.connect(meter);
+			mediaStreamSource.connect(analyser);
+		}
 	} else { // helifail
-		mediaStreamSource.disconnect();
+		if(mediaStreamSource)
+			mediaStreamSource.disconnect();
 		mediaStreamSource2.connect(meter);
 		mediaStreamSource2.connect(audioContext.destination);
 	}
